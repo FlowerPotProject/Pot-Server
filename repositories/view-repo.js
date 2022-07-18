@@ -194,7 +194,7 @@ module.exports = {
       );
       monthTemp.forEach((element) => {
         monthDataSet.temp.push({
-          time: moment(element.time).tz("Asia/Seoul").format("MM월DD일"),
+          time: moment(element.time).tz("Asia/Seoul").format("MM월 DD일"),
           val: element.val,
         });
       });
@@ -204,7 +204,7 @@ module.exports = {
       );
       monthHumi.forEach((element) => {
         monthDataSet.humi.push({
-          time: moment(element.time).tz("Asia/Seoul").format("MM월DD일"),
+          time: moment(element.time).tz("Asia/Seoul").format("MM월 DD일"),
           val: element.val,
         });
       });
@@ -214,7 +214,7 @@ module.exports = {
       );
       monthSoilHumi.forEach((element) => {
         monthDataSet.soilHumi.push({
-          time: moment(element.time).tz("Asia/Seoul").format("MM월DD일"),
+          time: moment(element.time).tz("Asia/Seoul").format("MM월 DD일"),
           val: element.val,
         });
       });
