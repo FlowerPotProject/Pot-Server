@@ -82,7 +82,10 @@ module.exports = {
       temp: [],
       humi: [],
       soilHumi: [],
+      log: [],
     };
+
+    let array = [];
 
     try {
       conn = await pool.getConnection();
@@ -117,6 +120,35 @@ module.exports = {
         });
       });
 
+      const dayContorlLog = await conn.query(
+        `SELECT CASE WHEN MINUTE(time) < 10 THEN DATE_FORMAT(time, '%Y-%m-%d %H:00') WHEN MINUTE(time) >= 10 AND MINUTE(time) < 20 THEN DATE_FORMAT(time, '%Y-%m-%d %H:10') WHEN MINUTE(time) >= 20 AND MINUTE(time) < 30 THEN DATE_FORMAT(time, '%Y-%m-%d %H:20') WHEN MINUTE(time) >= 30 AND MINUTE(time) < 40 THEN DATE_FORMAT(time, '%Y-%m-%d %H:30') WHEN MINUTE(time) >= 40 AND MINUTE(time) < 50 THEN DATE_FORMAT(time, '%Y-%m-%d %H:40') WHEN MINUTE(time) >= 50 AND MINUTE(time) < 60 THEN DATE_FORMAT(time, '%Y-%m-%d %H:50') END AS time FROM control_log WHERE time >= DATE_ADD(now(), INTERVAL -24 HOUR) AND pot_id = ${potId} AND (opcode = 'C_M_001' OR opcode = 'C_M_002') GROUP BY MONTH(time), DAY(time), HOUR(time), MINUTE(time);`
+      );
+      dayContorlLog.forEach((element) => {
+        array.push({
+          time: moment(element.time)
+            .tz("Asia/Seoul")
+            .format("YYYY-MM-DDTHH:mm:ss"),
+        });
+      });
+
+      const dayReserveLog = await conn.query(
+        `SELECT CASE WHEN MINUTE(start_time) < 10 THEN DATE_FORMAT(start_time, '%Y-%m-%d %H:00') WHEN MINUTE(start_time) >= 10 AND MINUTE(start_time) < 20 THEN DATE_FORMAT(start_time, '%Y-%m-%d %H:10') WHEN MINUTE(start_time) >= 20 AND MINUTE(start_time) < 30 THEN DATE_FORMAT(start_time, '%Y-%m-%d %H:20') WHEN MINUTE(start_time) >= 30 AND MINUTE(start_time) < 40 THEN DATE_FORMAT(start_time, '%Y-%m-%d %H:30') WHEN MINUTE(start_time) >= 40 AND MINUTE(start_time) < 50 THEN DATE_FORMAT(start_time, '%Y-%m-%d %H:40') WHEN MINUTE(start_time) >= 50 AND MINUTE(start_time) < 60 THEN DATE_FORMAT(start_time, '%Y-%m-%d %H:50') END AS time  FROM control_log WHERE time >= DATE_ADD(now(), INTERVAL -24 HOUR) AND pot_id = ${potId} AND (opcode = 'R_M_001' OR opcode = 'R_M_002') GROUP BY MONTH(time), DAY(time), HOUR(time), MINUTE(time);`
+      );
+      dayReserveLog.forEach((element) => {
+        array.push({
+          time: moment(element.time)
+            .tz("Asia/Seoul")
+            .format("YYYY-MM-DDTHH:mm:ss"),
+        });
+      });
+
+      array.sort((a, b) => new Date(a.time) - new Date(b.time));
+      array.forEach((element) => {
+        dayDataSet.log.push({
+          time: moment(element.time).tz("Asia/Seoul").format("HH:mm"),
+        });
+      });
+
       return dayDataSet;
     } catch (error) {
       console.error(error);
@@ -133,6 +165,7 @@ module.exports = {
       temp: [],
       humi: [],
       soilHumi: [],
+      log: [],
     };
 
     try {
@@ -184,6 +217,7 @@ module.exports = {
       temp: [],
       humi: [],
       soilHumi: [],
+      log: [],
     };
 
     try {
